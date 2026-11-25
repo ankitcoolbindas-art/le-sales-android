@@ -1,0 +1,10 @@
+node_modules/
+*.jks
+*.keystore
+keystore.properties
+local.properties
+/android-out/
+.DS_Store
+ios/App/App/public/
+ios/DerivedData/
+ios/App/build/

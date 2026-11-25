@@ -1,0 +1,34 @@
+{
+  "appId": "in.lalitenterprises.sales",
+  "appName": "LE Sales",
+  "webDir": "www",
+  "server": {
+    "url": "https://ankitcoolbindas-art.github.io/le-sales-app/",
+    "errorPath": "offline.html",
+    "allowNavigation": [
+      "ankitcoolbindas-art.github.io",
+      "*.googleapis.com",
+      "*.gstatic.com",
+      "*.firebaseapp.com",
+      "unpkg.com",
+      "cdn.jsdelivr.net"
+    ]
+  },
+  "appendUserAgent": "LESalesApp/1.0",
+  "android": {
+    "useLegacyBridge": true,
+    "allowMixedContent": false,
+    "backgroundColor": "#07090e",
+    "includePlugins": []
+  },
+  "ios": {
+    "backgroundColor": "#07090e",
+    "contentInset": "never",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": false
+    }
+  }
+}
