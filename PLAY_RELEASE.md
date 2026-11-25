@@ -1,11 +1,11 @@
 # LE Sales — Google Play release (internal testing)
 
-Play developer account: **karidare.in@gmail.com** · Package: **in.lalitenterprises.sales** · versionCode 1 / versionName 1.0.0
+Play developer account: **karidare.in@gmail.com** · Package: **in.lalitenterprises.sales** · versionCode 2 / versionName 1.1.0 (v1.0.0 = versionCode 1)
 
 ## Files
 | What | Path on the build box |
 |---|---|
-| Signed Play bundle (upload this) | `/workspace/le-sales-android-out/le-sales-play-v1.aab` |
+| Signed Play bundle (upload this) | `/workspace/le-sales-android-out/le-sales-play-v1.1.aab` (v1.1.0, code 2; older: `le-sales-play-v1.aab`) |
 | Sideload APK (direct install, not for Play) | `/workspace/le-sales-android-out/le-sales.apk` |
 | Upload keystore + passwords (never commit) | `/workspace/le-sales-android-keys/` (`le-sales-release.jks`, `keystore.properties`) |
 
@@ -72,3 +72,12 @@ Being an internal company app, internal testing (or an organisation account with
 1. Bump `versionCode` (+1) and `versionName` in `android/app/build.gradle`.
 2. `scripts/build-apk.sh` → upload the new `le-sales-play-vN.aab` to the same track.
 Most changes (screens, texts) are in the web app and reach phones without a new build.
+
+
+## v1.1.0 (versionCode 2) — upload `le-sales-play-v1.1.aab`
+Release notes: "In-app selfie camera for attendance; blocks check-in when a fake-GPS / mock-location app is used."
+Play Console changes for this version:
+- **Data safety:** add *Photos* (collected, not shared, purpose: App functionality — attendance selfie) alongside Location.
+- **Camera** permission: used only for the attendance selfie (in-app live preview).
+- Fake-GPS check uses a `<queries>` list of known mock-location package names (no `QUERY_ALL_PACKAGES`), so no extra declaration is needed.
+- `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` stays removed in the `play` flavor (verified absent in the bundle).

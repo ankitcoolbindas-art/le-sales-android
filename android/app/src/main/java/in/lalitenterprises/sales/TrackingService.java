@@ -66,6 +66,7 @@ public class TrackingService extends Service {
     private LocationCallback callback;
     private final ExecutorService net = Executors.newSingleThreadExecutor();
     private Location lastSent;
+    private boolean lastMock = false;
     private long lastSentAt;
     private String idToken;
     private long idTokenExp;
@@ -135,9 +136,13 @@ public class TrackingService extends Service {
         p.edit().putLong("lastFixAt", System.currentTimeMillis()).putFloat("lastAcc", l.getAccuracy()).apply();
         long now = System.currentTimeMillis();
         String reason = null;
-        if (lastSent == null) reason = "start";
-        else if (now - lastSentAt >= SEND_EVERY_MS) reason = "interval";
-        else if (now - lastSentAt >= MOVE_MIN_GAP_MS && l.distanceTo(lastSent) >= MOVE_M && l.getAccuracy() < 200) reason = "move";
+        boolean mock = MockCheck.isMock(l);
+        if (mock && !lastMock) reason = "mock";                      // fake GPS just started: report it right away
+        lastMock = mock;
+        if (mock) p.edit().putLong("mockAt", now).apply();
+        if (reason == null && lastSent == null) reason = "start";
+        if (reason == null && now - lastSentAt >= SEND_EVERY_MS) reason = "interval";
+        if (reason == null && now - lastSentAt >= MOVE_MIN_GAP_MS && l.distanceTo(lastSent) >= MOVE_M && l.getAccuracy() < 200) reason = "move";
         if (reason == null) return;
         lastSent = l; lastSentAt = now;
         enqueue(toDoc(l, reason, p));
@@ -158,6 +163,7 @@ public class TrackingService extends Service {
             JSONObject d = baseDoc(this, p, l.getLatitude(), l.getLongitude(), l.getAccuracy(), l.getTime() > 0 ? l.getTime() : System.currentTimeMillis(), reason);
             if (l.hasSpeed()) d.put("speed", (double) l.getSpeed());
             if (l.hasBearing()) d.put("heading", (double) l.getBearing());
+            if (MockCheck.isMock(l)) d.put("mock", true);             // admin sees "Fake GPS" on the live map / attendance
             return d;
         } catch (Exception e) { return null; }
     }

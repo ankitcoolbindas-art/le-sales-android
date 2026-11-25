@@ -25,3 +25,13 @@ scripts/build-apk.sh     # → /workspace/le-sales-android-out/le-sales.apk + le
 Outputs a sideload APK and a Play AAB (see PLAY_RELEASE.md). Needs JDK 21, Android SDK (platform 36, build-tools 36) at `$ANDROID_HOME`, and the signing key at
 `/workspace/le-sales-android-keys/keystore.properties` (NOT in this repo — back it up; every update must be
 signed with the same key). Bump `versionCode`/`versionName` in `android/app/build.gradle` for each release.
+
+
+## v1.1.0 (versionCode 2)
+- **Camera:** `CAMERA` permission (camera hardware optional) → the attendance selfie uses the in-app live preview (Capacitor's WebChromeClient asks for the runtime permission). No "phone camera app" fallback in 1.1; if permission is refused the app shows *Open settings / Try again*.
+- **Fake GPS block** (`MockCheck.java`): a fix is mock if `Location.isMock()` (API 31+) / `isFromMockProvider()`; also flags known fake-GPS apps installed (`<queries>` list, no `QUERY_ALL_PACKAGES`), apps currently granted the *mock location* app-op, and legacy `Settings.Secure.ALLOW_MOCK_LOCATION`.
+  - Plugin methods: `mockStatus()`, `currentFix({timeoutMs,maxAgeMs})` (fused high-accuracy fix + mock info), `cameraStatus()`.
+  - Attendance check-in/out is refused with "Fake GPS detected — turn off mock location app"; the attempt is saved as a `locations` point with `mock:true`, `reason:'checkin-blocked'|'checkout-blocked'`, `mockApp`.
+  - `TrackingService` keeps writing points but adds `mock:true` (and sends immediately when mock starts); status exposes `mockAt` so the pill warns the salesperson.
+  - Web code detects the app version (`LENative.status().appVersion >= 1.1.0`) so v1.0 installs keep working the old way.
+- **Limits:** rooted phones with hide modules (Magisk/LSPosed) can strip the mock flag; unknown fake-GPS apps are only caught by the mock flag / app-op; web & iPhone cannot detect mock (they only get weak/old-GPS flags).

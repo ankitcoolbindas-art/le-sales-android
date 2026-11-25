@@ -215,6 +215,60 @@ public class LENativePlugin extends Plugin {
         call.resolve();
     }
 
+    /* ---------- v1.1: attendance fix with fake-GPS detection ---------- */
+
+    /** Installed / active fake-GPS apps (no location needed). */
+    @PluginMethod
+    public void mockStatus(PluginCall call) { call.resolve(mockJson(getContext(), null)); }
+
+    /** Fresh high-accuracy fix for check-in / check-out, with mock flags. */
+    @PluginMethod
+    public void currentFix(PluginCall call) {
+        if (!granted(Manifest.permission.ACCESS_FINE_LOCATION) && !granted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            call.reject("Location permission not granted", "NOT_AUTHORIZED"); return;
+        }
+        Context c = getContext();
+        try {
+            com.google.android.gms.location.FusedLocationProviderClient f = com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(c);
+            com.google.android.gms.location.CurrentLocationRequest req = new com.google.android.gms.location.CurrentLocationRequest.Builder()
+                .setPriority(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY)
+                .setMaxUpdateAgeMillis(call.getInt("maxAgeMs", 15000))
+                .setDurationMillis(call.getInt("timeoutMs", 25000)).build();
+            f.getCurrentLocation(req, null)
+                .addOnSuccessListener(l -> { if (l == null) call.reject("Location not found — turn on GPS and try again", "NO_FIX"); else call.resolve(mockJson(c, l)); })
+                .addOnFailureListener(e -> call.reject("Location error: " + e.getMessage(), "NO_FIX"));
+        } catch (SecurityException e) {
+            call.reject("Location permission not granted", "NOT_AUTHORIZED");
+        } catch (Exception e) {
+            call.reject("Location error: " + e.getMessage(), "NO_FIX");
+        }
+    }
+
+    @PluginMethod
+    public void cameraStatus(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("granted", granted(Manifest.permission.CAMERA));
+        call.resolve(r);
+    }
+
+    static JSObject mockJson(Context c, android.location.Location l) {
+        JSObject r = new JSObject();
+        java.util.List<String> inst = MockCheck.installed(c), act = MockCheck.active(c, inst);
+        com.getcapacitor.JSArray ia = new com.getcapacitor.JSArray(), aa = new com.getcapacitor.JSArray();
+        for (String p : inst) ia.put(MockCheck.label(c, p));
+        for (String p : act) aa.put(MockCheck.label(c, p));
+        r.put("mockAppsInstalled", ia);
+        r.put("mockAppsActive", aa);
+        r.put("legacyMockSetting", MockCheck.legacySetting(c));
+        if (l != null) {
+            r.put("lat", l.getLatitude()); r.put("lng", l.getLongitude());
+            r.put("accuracy", (double) l.getAccuracy());
+            r.put("time", l.getTime());
+            r.put("mock", MockCheck.isMock(l));
+        }
+        return r;
+    }
+
     private static JSObject trackingJson(Context c) {
         android.content.SharedPreferences p = TrackingService.prefs(c);
         JSObject r = new JSObject();
@@ -232,6 +286,7 @@ public class LENativePlugin extends Plugin {
         r.put("endReason", p.getString("endReason", ""));
         r.put("endedAt", p.getLong("endedAt", 0));
         r.put("stopHour", p.getInt("stopHour", 21));
+        r.put("mockAt", p.getLong("mockAt", 0));
         return r;
     }
 

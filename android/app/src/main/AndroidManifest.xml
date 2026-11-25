@@ -47,6 +47,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- v1.1: live selfie preview for attendance check-in / check-out (in-app camera, getUserMedia) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
     <uses-feature
         android:name="android.hardware.location.gps"
         android:required="false"
@@ -66,5 +70,31 @@
         </intent>
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
+        <!-- v1.1: well-known fake-GPS apps, only to warn/block attendance (no QUERY_ALL_PACKAGES) -->
+        <package android:name="com.lexa.fakegps" />
+        <package android:name="com.incorporateapps.fakegps.fre" />
+        <package android:name="com.blogspot.newapphorizons.fakegps" />
+        <package android:name="com.theappninjas.fakegpsjoystick" />
+        <package android:name="com.theappninjas.gpsjoystick" />
+        <package android:name="com.rosteam.gpsemulator" />
+        <package android:name="ru.gavrikov.mocklocations" />
+        <package android:name="com.evezzon.fakegps" />
+        <package android:name="com.gsmartstudio.fakegps" />
+        <package android:name="com.fakegps.mock" />
+        <package android:name="com.just4funtools.fakegpslocationprofessional" />
+        <package android:name="com.divi.fakeGPS" />
+        <package android:name="com.hopefactory2021.fakegpslocation" />
+        <package android:name="com.location.changer.fake.gps.spoof.emulator" />
+        <package android:name="com.lkr.fakelocation" />
+        <package android:name="com.marlon.floating.fakelocation" />
+        <package android:name="fake.gps.location" />
+        <package android:name="com.mock.location" />
+        <package android:name="com.fakelocation.gpschanger" />
+        <package android:name="com.tim.apps.mockgps" />
+        <package android:name="com.kkinfosis.fakegps" />
+        <package android:name="com.applabstudios.fakegps" />
+        <package android:name="com.gps.faker" />
+        <package android:name="com.dreams.fakegps" />
+        <package android:name="com.xdoapp.virtualphonenavigation" />
     </queries>
 </manifest>
